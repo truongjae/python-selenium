@@ -7,6 +7,7 @@ import random
 
 import requests
 from selenium.webdriver.chrome.options import Options
+import mechanize
 
 import threading
 
@@ -281,39 +282,7 @@ def auto_add_card(acc):
 # 	
 
 
-def logina(email,pw):
-	s = session()
-	url = 'https://m.facebook.com/login.php'
-	data = {
-		'email': email,
-		'pass': pw
-	}
-	headers = {
-		'user-agent'                : 'Mozilla/5.0 (Linux; Android 10.0.0; Mi8 Build/OPM1.171019.011) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.86 Mobile Safari/537.36',
-		'authority': 'm.facebook.com',
-		'method': 'POST',
-		'scheme': 'https',
-		'accept': '*/*',
-		'accept-encoding': 'gzip, deflate, br',
-		'accept-language': 'en-US,en;q=0.9',
-		'content-length': '950',
-		'origin': 'https://m.facebook.com',
-		'referer': 'https://m.facebook.com/'
-	}
-	s.post(url,data = data,headers = headers)
-	url = "https://m.facebook.com/login/checkpoint"
-	data = {
-		'checkpoint_data': '',
-		'approvals_code': '133800',
-		'codes_submitted': '0',
-		'submit[Submit Code]': 'Submit Code'
-	}
-	p = s.post(url,data = data,headers = headers)
-	print(p)
-	return str(s.cookies)
-
-import mechanize
-def login(email,pw):
+def login(email,pw,fa):
 	browser = mechanize.Browser()
 	browser.set_handle_robots(False)
 	cookies = mechanize.CookieJar()
@@ -326,6 +295,38 @@ def login(email,pw):
 	browser.form['email'] = email
 	browser.form['pass'] = pw
 	response = browser.submit()
-	print(response.read())
-	# return str(browser._ua_handlers['_cookies'].cookiejar)
-login("100082676463711","melvincjowen517")
+
+	browser.open("https://m.facebook.com/checkpoint/?__req=7")
+	browser.select_form(nr = 0)
+	browser.form['approvals_code'] = get2FA(fa)
+	response = browser.submit()
+
+	for i in range(3):
+		try:
+			browser.open("https://m.facebook.com/login/checkpoint/")
+			browser.select_form(nr = 0)
+			response = browser.submit()
+		except:
+			pass
+
+	# print(response.read())
+
+	return str(browser._ua_handlers['_cookies'].cookiejar)
+	
+
+
+def getCookie(listCookies):
+	listCookies = listCookies.split("CookieJar")
+	listCookies = listCookies[1]
+	listCookies = listCookies[1:len(listCookies)-2]
+	listCookies = " "+listCookies
+	listCookies = listCookies.split(",")
+	result = ""
+	for cookie in listCookies:
+		temp = cookie.split(" ")
+		if temp[2]!="noscript=1":
+			result+=temp[2]+";"
+	result = result[0:len(result)-1]
+	return result
+
+print(getCookie(login("100082567838909","melvindgvmclaughlin615","Q3OIYANFSR5CRRU2TC3YEXLD7LACQ2JN")))
