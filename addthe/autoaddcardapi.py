@@ -252,8 +252,18 @@ def set_limit(cookies,fb_dtsg,account_id):
 		'doc_id': '5615899425146711'
 	}
 	requests.post(url,data = data, cookies = cookies)
-	print("xét limit thành công")
-
+	print("set limit thành công")
+def approve(cookies,fb_dtsg,account_id):
+	myID = cookies['c_user']
+	url = "https://m.facebook.com/api/graphql/"
+	data = {
+		'fb_dtsg': fb_dtsg,
+		'fb_api_caller_class': 'RelayModern',
+		'fb_api_req_friendly_name': 'useBillingPreauthPermitMutation',
+		'variables': '{"input":{"client_mutation_id":"1","actor_id":"'+myID+'","billable_account_payment_legacy_account_id":"'+account_id+'","entry_point":"BILLING_2_0"}}',
+		'doc_id': '3514448948659909'
+	}
+	requests.post(url,data = data, cookies = cookies)
 # cookies = convert_cookie_to_json("c_user=100082365015603; xs=46:-qi3_9qPm9eLxA:2:1655738949:-1:-1; oo=v1; useragent=TW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzgzLjAuMTcxMC4zMiBTYWZhcmkvNTM3LjM2")
 # fb_dtsg = get_fb_dtsg(cookies)
 # account_id = get_account_id(cookies)
@@ -271,15 +281,10 @@ def auto_add_card(acc):
 	card = random.choice(list_card())
 	add_card(cookies,fb_dtsg,account_id,card)
 	set_limit(cookies,fb_dtsg,account_id)
+	approve(cookies,fb_dtsg,account_id)
 	saveAccSuccess(acc)
 
-# arrThread = []
-# for acc in listCloneAcc():
-# 	t = threading.Thread(target = auto_add_card,args=(acc,))
-# 	arrThread.append(t)
-# for t in arrThread:
-# 	t.start()
-# 	
+
 
 
 def login(email,pw,fa):
@@ -329,4 +334,13 @@ def getCookie(listCookies):
 	result = result[0:len(result)-1]
 	return result
 
-print(getCookie(login("100082567838909","melvindgvmclaughlin615","Q3OIYANFSR5CRRU2TC3YEXLD7LACQ2JN")))
+# print(getCookie(login("100082567838909","melvindgvmclaughlin615","Q3OIYANFSR5CRRU2TC3YEXLD7LACQ2JN")))
+
+
+arrThread = []
+for acc in listCloneAcc():
+	t = threading.Thread(target = auto_add_card,args=(acc,))
+	arrThread.append(t)
+for t in arrThread:
+	t.start()
+	
