@@ -205,7 +205,7 @@ def set_country_and_currentcy(cookies,fb_dtsg,account_id):
 	myID = cookies['c_user']
 	data = {
 		'fb_dtsg': fb_dtsg,
-		'variables': '{"input":{"client_mutation_id":"3","actor_id":"'+myID+'","billable_account_payment_legacy_account_id":"'+account_id+'","currency":"USD","logging_data":{"logging_counter":13,"logging_id":"113367954"},"tax":{"business_address":{"city":"","country_code":"BD","state":"","street1":"","street2":"","zip":""},"business_name":"","is_personal_use":false,"second_tax_id":"","second_tax_id_type":null,"tax_exempt":false,"tax_id":"","tax_id_type":"NONE"},"timezone":null}}',
+		'variables': '{"input":{"client_mutation_id":"3","actor_id":"'+myID+'","billable_account_payment_legacy_account_id":"'+account_id+'","currency":"USD","logging_data":{"logging_counter":13,"logging_id":"113367954"},"tax":{"business_address":{"city":"","country_code":"BD","state":"","street1":"","street2":"","zip":""},"business_name":"","is_personal_use":false,"second_tax_id":"","second_tax_id_type":null,"tax_exempt":false,"tax_id":"","tax_id_type":"NONE"},"timezone":"Asia/Jakarta"}}',
 		'doc_id': '5428097817221702'
 	}
 	requests.post(url,data = data, cookies = cookies)
@@ -276,12 +276,16 @@ def approve(cookies,fb_dtsg,account_id):
 def auto_add_card(acc):
 	cookies = convert_cookie_to_json(acc.cookies)
 	fb_dtsg = get_fb_dtsg(cookies)
+	sl(5)
 	account_id = get_account_id(cookies)
+	sl(5)
 	set_country_and_currentcy(cookies,fb_dtsg,account_id)
+	sl(5)
 	card = random.choice(list_card())
 	add_card(cookies,fb_dtsg,account_id,card)
+	sl(3)
 	set_limit(cookies,fb_dtsg,account_id)
-	approve(cookies,fb_dtsg,account_id)
+	# approve(cookies,fb_dtsg,account_id)
 	saveAccSuccess(acc)
 
 
