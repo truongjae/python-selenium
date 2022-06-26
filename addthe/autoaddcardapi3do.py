@@ -136,10 +136,20 @@ def getAccountId(driver):
 		acc_id+=i
 	return acc_id
 def get_fb_dtsg(cookies):
+	# try:
+	# 	gets = requests.get("https://m.facebook.com/home.php?ref=wizard&_rdr",cookies = cookies)
+	# 	soup = BS(gets.content, "html.parser")
+	# 	return soup.find('input', {'name': 'fb_dtsg'}).get('value')
+	# except:
+	# 	return None
 	try:
-		gets = requests.get("https://m.facebook.com",cookies = cookies)
+		gets = requests.get("https://www.facebook.com",cookies = cookies)
 		soup = BS(gets.content, "html.parser")
-		return soup.find('input', {'name': 'fb_dtsg'}).get('value')
+		gets = str(gets.text)
+		gets = cut_string(gets,'["DTSGInitialData",[],{"token":"',True)
+		gets = cut_string(gets,'"',False)
+		return gets
+		# return soup.find('input', {'name': 'fb_dtsg'}).get('value')
 	except:
 		return None
 def setLimitWithApi(driver,tk,cookie):
@@ -210,7 +220,16 @@ def set_country_and_currentcy(cookies,fb_dtsg,account_id):
 	}
 	requests.post(url,data = data, cookies = cookies)
 	print("đổi tiền thành công")
-
+def set_country_and_currentcy_lol(cookies,fb_dtsg,account_id):
+	url = "https://m.facebook.com/api/graphql/"
+	myID = cookies['c_user']
+	data = {
+		'fb_dtsg': fb_dtsg,
+		'variables': '{"input":{"client_mutation_id":"3","actor_id":"'+myID+'","billable_account_payment_legacy_account_id":"'+account_id+'","currency":"TWD","logging_data":{"logging_counter":13,"logging_id":"526291686"},"tax":{"business_address":{"city":"","country_code":"TW","state":"","street1":"","street2":"","zip":""},"business_name":"","is_personal_use":false,"tax_id":"1234567891025"},"timezone":"Asia/Jakarta"}}',
+		'doc_id': '5428097817221702'
+	}
+	requests.post(url,data = data, cookies = cookies)
+	print("đổi tiền thành công")
 def list_card():
 	f = open("card.txt","r+")
 	data = f.readlines()
@@ -264,20 +283,44 @@ def approve(cookies,fb_dtsg,account_id):
 		'doc_id': '3514448948659909'
 	}
 	requests.post(url,data = data, cookies = cookies)
-
+def set_tax(cookies,fb_dtsg,account_id):
+	myID = cookies['c_user']
+	url = "https://m.facebook.com/api/graphql/"
+	data = {
+		'fb_dtsg': fb_dtsg,
+		'fb_api_caller_class': 'RelayModern',
+		'fb_api_req_friendly_name': 'BillingAccountInformationUtilsUpdateAccountMutation',
+		'variables': '{"input":{"client_mutation_id":"2","actor_id":"'+myID+'","billable_account_payment_legacy_account_id":"'+account_id+'","currency":null,"logging_data":{"logging_counter":9,"logging_id":"3577491254"},"tax":{"business_address":{"city":"abcdefgh","country_code":"US","state":"AK","street1":"abcdefgh","street2":"abcdefgh","zip":"10000"},"business_name":"abcdefgh","is_personal_use":false},"timezone":null}}',
+		'doc_id': '5428097817221702'
+	}
+	requests.post(url,data = data, cookies = cookies)
+	print("set tax thành công")
 def auto_add_card(acc):
+	# cookies = convert_cookie_to_json(acc.cookies)
+	# fb_dtsg = get_fb_dtsg(cookies)
+	# sl(5)
+	# account_id = get_account_id(cookies)
+	# sl(5)
+	# set_country_and_currentcy(cookies,fb_dtsg,account_id)
+	# sl(5)
+	# card = random.choice(list_card())
+	# add_card(cookies,fb_dtsg,account_id,card)
+	# sl(3)
+	# set_limit(cookies,fb_dtsg,account_id)
+	# # approve(cookies,fb_dtsg,account_id)
+	# saveAccSuccess(acc)
+
+
 	cookies = convert_cookie_to_json(acc.cookies)
 	fb_dtsg = get_fb_dtsg(cookies)
-	sl(5)
+	print(fb_dtsg)
 	account_id = get_account_id(cookies)
-	sl(5)
-	set_country_and_currentcy(cookies,fb_dtsg,account_id)
-	sl(5)
+	print(account_id)
+	set_country_and_currentcy_lol(cookies,fb_dtsg,account_id)
 	card = random.choice(list_card())
 	add_card(cookies,fb_dtsg,account_id,card)
-	sl(3)
 	set_limit(cookies,fb_dtsg,account_id)
-	# approve(cookies,fb_dtsg,account_id)
+	# set_tax(cookies,fb_dtsg,account_id)
 	saveAccSuccess(acc)
 
 
@@ -335,5 +378,6 @@ arrThread = []
 for acc in listCloneAcc():
 	t = threading.Thread(target = auto_add_card,args=(acc,))
 	arrThread.append(t)
+	# break
 for t in arrThread:
 	t.start()

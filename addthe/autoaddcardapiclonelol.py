@@ -215,7 +215,7 @@ def set_country_and_currentcy(cookies,fb_dtsg,account_id):
 	myID = cookies['c_user']
 	data = {
 		'fb_dtsg': fb_dtsg,
-		'variables': '{"input":{"client_mutation_id":"3","actor_id":"'+myID+'","billable_account_payment_legacy_account_id":"'+account_id+'","currency":"USD","logging_data":{"logging_counter":13,"logging_id":"113367954"},"tax":{"business_address":{"city":"","country_code":"BD","state":"","street1":"","street2":"","zip":""},"business_name":"","is_personal_use":false,"second_tax_id":"","second_tax_id_type":null,"tax_exempt":false,"tax_id":"","tax_id_type":"NONE"},"timezone":"Asia/Jakarta"}}',
+		'variables': '{"input":{"client_mutation_id":"3","actor_id":"'+myID+'","billable_account_payment_legacy_account_id":"'+account_id+'","currency":"USD","logging_data":{"logging_counter":13,"logging_id":"113367954"},"tax":{"business_address":{"city":"","country_code":"US","state":"","street1":"","street2":"","zip":""},"business_name":"","is_personal_use":false,"second_tax_id":"","second_tax_id_type":null,"tax_exempt":false,"tax_id":"","tax_id_type":"NONE"},"timezone":"Asia/Jakarta"}}',
 		'doc_id': '5428097817221702'
 	}
 	requests.post(url,data = data, cookies = cookies)
@@ -225,7 +225,7 @@ def set_country_and_currentcy_lol(cookies,fb_dtsg,account_id):
 	myID = cookies['c_user']
 	data = {
 		'fb_dtsg': fb_dtsg,
-		'variables': '{"input":{"client_mutation_id":"4","actor_id":"'+myID+'","billable_account_payment_legacy_account_id":"'+account_id+'","currency":"USD","logging_data":{"logging_counter":19,"logging_id":"526291686"},"tax":{"business_address":{"city":"","country_code":"BD","state":"","street1":"","street2":"","zip":""},"business_name":"","is_personal_use":false,"tax_id":"1234567891025"},"timezone":"Asia/Jakarta"}}',
+		'variables': '{"input":{"client_mutation_id":"4","actor_id":"'+myID+'","billable_account_payment_legacy_account_id":"'+account_id+'","currency":"USD","logging_data":{"logging_counter":19,"logging_id":"526291686"},"tax":{"business_address":{"city":"","country_code":"US","state":"","street1":"","street2":"","zip":""},"business_name":"","is_personal_use":false,"tax_id":"1234567891025"},"timezone":"Asia/Jakarta"}}',
 		'doc_id': '5428097817221702'
 	}
 	requests.post(url,data = data, cookies = cookies)
@@ -255,7 +255,7 @@ def add_card(cookies,fb_dtsg,account_id,card):
 
 	data = {
 		'fb_dtsg': fb_dtsg,
-		'variables': '{"input":{"client_mutation_id":"6","actor_id":"'+myID+'","billing_address":{"country_code":"BD"},"billing_logging_data":{"logging_counter":28,"logging_id":"3221251053"},"cardholder_name":"abcde","credit_card_first_6":{"sensitive_string_value":"'+card_first_6+'"},"credit_card_last_4":{"sensitive_string_value":"'+card_last_4+'"},"credit_card_number":{"sensitive_string_value":"'+card.code+'"},"csc":{"sensitive_string_value":"'+card.ccv+'"},"expiry_month":"'+month+'","expiry_year":"'+year+'","payment_account_id":"'+account_id+'","payment_type":"MOR_ADS_INVOICE","unified_payments_api":true}}',
+		'variables': '{"input":{"client_mutation_id":"6","actor_id":"'+myID+'","billing_address":{"country_code":"US"},"billing_logging_data":{"logging_counter":28,"logging_id":"3221251053"},"cardholder_name":"abcde","credit_card_first_6":{"sensitive_string_value":"'+card_first_6+'"},"credit_card_last_4":{"sensitive_string_value":"'+card_last_4+'"},"credit_card_number":{"sensitive_string_value":"'+card.code+'"},"csc":{"sensitive_string_value":"'+card.ccv+'"},"expiry_month":"'+month+'","expiry_year":"'+year+'","payment_account_id":"'+account_id+'","payment_type":"MOR_ADS_INVOICE","unified_payments_api":true}}',
 		'doc_id': '4126726757375265'
 	}
 	requests.post(url,data = data, cookies = cookies)
@@ -272,6 +272,19 @@ def set_limit(cookies,fb_dtsg,account_id):
 	}
 	requests.post(url,data = data, cookies = cookies)
 	print("set limit thành công")
+def set_tax(cookies,fb_dtsg,account_id):
+	myID = cookies['c_user']
+	url = "https://m.facebook.com/api/graphql/"
+	data = {
+		'fb_dtsg': fb_dtsg,
+		'fb_api_caller_class': 'RelayModern',
+		'fb_api_req_friendly_name': 'BillingAccountInformationUtilsUpdateAccountMutation',
+		'variables': '{"input":{"client_mutation_id":"2","actor_id":"'+myID+'","billable_account_payment_legacy_account_id":"'+account_id+'","currency":null,"logging_data":{"logging_counter":9,"logging_id":"3577491254"},"tax":{"business_address":{"city":"abcdefgh","country_code":"US","state":"AK","street1":"abcdefgh","street2":"abcdefgh","zip":"10000"},"business_name":"abcdefgh","is_personal_use":false},"timezone":null}}',
+		'doc_id': '5428097817221702'
+	}
+	requests.post(url,data = data, cookies = cookies)
+	print("set tax thành công")
+
 def approve(cookies,fb_dtsg,account_id):
 	myID = cookies['c_user']
 	url = "https://m.facebook.com/api/graphql/"
@@ -315,6 +328,7 @@ def auto_add_card(acc):
 	card = random.choice(list_card())
 	add_card(cookies,fb_dtsg,account_id,card)
 	set_limit(cookies,fb_dtsg,account_id)
+	set_tax(cookies,fb_dtsg,account_id)
 	saveAccSuccess(acc)
 
 
