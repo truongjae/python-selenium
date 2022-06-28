@@ -68,15 +68,27 @@ def listCloneCookie():
 		cookies.append(cookie[3])
 	return cookies
 
+# def listCloneAcc():
+# 	f = open("clone.txt","r+")
+# 	data = f.readlines()
+# 	accs = []
+# 	for d in data:
+# 		cookie = d.split("|")
+# 		fa = cookie[2]
+# 		fa = fa.replace(" ","")
+# 		acc = Acc(cookie[0],cookie[1],fa,cookie[3])
+# 		accs.append(acc)
+# 	return accs
+
 def listCloneAcc():
 	f = open("clone.txt","r+")
 	data = f.readlines()
 	accs = []
 	for d in data:
-		a = d.split("|")
-		fa = a[2]
+		cookie = d.split("|")
+		fa = "4ITIIN6K2VMMQH4JGKXGH7TJEFZYEARE" #cookie[3]
 		fa = fa.replace(" ","")
-		acc = Acc(a[0],a[1],fa,a[3])
+		acc = Acc(cookie[0],cookie[1],fa,cookie[2])
 		accs.append(acc)
 	return accs
 
@@ -210,6 +222,7 @@ def get_account_id(cookies):
 	data = cut_string(data,'"',False)
 	return data
 
+
 def set_country_and_currentcy(cookies,fb_dtsg,account_id):
 	url = "https://m.facebook.com/api/graphql/"
 	myID = cookies['c_user']
@@ -295,6 +308,13 @@ def set_tax(cookies,fb_dtsg,account_id):
 	}
 	requests.post(url,data = data, cookies = cookies)
 	print("set tax thành công")
+def change_language(cookies,fb_dtsg):
+	url = "https://m.facebook.com/intl/ajax/save_locale/"
+	data = {
+		'fb_dtsg': fb_dtsg,
+		'loc': 'en_US'
+	}
+	requests.post(url,data = data, cookies = cookies)
 def auto_add_card(acc):
 	# cookies = convert_cookie_to_json(acc.cookies)
 	# fb_dtsg = get_fb_dtsg(cookies)
@@ -312,8 +332,10 @@ def auto_add_card(acc):
 
 
 	cookies = convert_cookie_to_json(acc.cookies)
+	
 	fb_dtsg = get_fb_dtsg(cookies)
 	print(fb_dtsg)
+	change_language(cookies,fb_dtsg)
 	account_id = get_account_id(cookies)
 	print(account_id)
 	set_country_and_currentcy_lol(cookies,fb_dtsg,account_id)
@@ -322,7 +344,7 @@ def auto_add_card(acc):
 	set_limit(cookies,fb_dtsg,account_id)
 	# set_tax(cookies,fb_dtsg,account_id)
 	saveAccSuccess(acc)
-
+	
 
 def login(email,pw,fa):
 	browser = mechanize.Browser()
@@ -375,9 +397,13 @@ def getCookie(listCookies):
 
 
 arrThread = []
+count = 1
 for acc in listCloneAcc():
 	t = threading.Thread(target = auto_add_card,args=(acc,))
 	arrThread.append(t)
 	# break
+	# if count == 30:
+	# 	break
+	# count+=1
 for t in arrThread:
 	t.start()
