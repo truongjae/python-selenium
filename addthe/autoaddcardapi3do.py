@@ -1,19 +1,15 @@
-from selenium import webdriver
 from time import sleep as sl
 from http.cookies import SimpleCookie
 from bs4 import BeautifulSoup as BS
 from requests import session
 import random
-
 import requests
-from selenium.webdriver.chrome.options import Options
 import mechanize
 
 import threading
 
-
-chrome_options = Options()
-chrome_options.add_experimental_option("detach", True)
+count_add_card_success=0
+count_list_clone = 0
 
 class Card:
 	def __init__(self,code,date,ccv):
@@ -52,13 +48,6 @@ def get2FA(fa):
 	p = requests.get("https://2fa.live/tok/"+fa)
 	return p.json()['token']
 
-def getCookieFromDriver(driver):
-	keyCookies = ["sb","datr","c_user","xs","fr"]
-	string_cookie = ""
-	for key in keyCookies:
-		string_cookie+= key+"="+driver.get_cookie(key)['value']+";"
-	return string_cookie
-
 def listCloneCookie():
 	f = open("clone.txt","r+")
 	data = f.readlines()
@@ -92,6 +81,37 @@ def listCloneAcc():
 		accs.append(acc)
 	return accs
 
+# def tick_card_used(card):
+# 	data = open("testcard.txt", "r+").readlines()
+# 	saveCard = ""
+# 	for d in data:
+# 		temp = d.replace("\n","")
+# 		temp = temp.split("|")
+# 		if str(temp[0]) == str(card.code):
+# 			try:
+# 				count = int(temp[4])
+# 				value = temp[0]+"|"+temp[1]+"|"+temp[2]+"|"+temp[3]+"|"+str(count+1)+"\n"
+# 				saveCard+=value
+# 			except:
+# 				value = temp[0]+"|"+temp[1]+"|"+temp[2]+"|"+temp[3]+"|1\n"
+# 				saveCard+=value
+# 	f = open("testcard.txt", "a+")
+# 	f.truncate(0)
+# 	f = open("testcard.txt", "a+")
+# 	f.write(saveCard)
+
+
+
+
+
+
+def check_card_used(card):
+	for c in listCard():
+		if card.code == c.code:
+			f = open("testcard.txt", "a+")
+			# f.truncate(0)
+
+
 def listCard():
 	f = open("card.txt","r+")
 	data = f.readlines()
@@ -103,41 +123,6 @@ def listCard():
 		cards.append(card)
 	return cards
 
-def clickElm(driver,xpath):
-	while True:
-		try:
-			driver.find_element_by_xpath(xpath).click()
-			break
-		except:
-			pass
-
-def sendKeyElm(driver,xpath,value):
-	while True:
-		try:
-			driver.find_element_by_xpath(xpath).send_keys(value)
-			break
-		except:
-			pass
-def clearInput(driver,xpath):
-	while True:
-		try:
-			driver.find_element_by_xpath(xpath).clear()
-			break
-		except:
-			pass
-
-def findElm(driver,xpath):
-	count = 0
-	while True:
-		count+=1
-		try:
-			driver.find_element_by_xpath(xpath)
-			return True
-		except:
-			pass
-		if count > 8:
-			return False
-		sl(1)
 def getAccountId(driver):
 	url = driver.current_url
 	acc = url.split("account_id=")
@@ -148,12 +133,6 @@ def getAccountId(driver):
 		acc_id+=i
 	return acc_id
 def get_fb_dtsg(cookies):
-	# try:
-	# 	gets = requests.get("https://m.facebook.com/home.php?ref=wizard&_rdr",cookies = cookies)
-	# 	soup = BS(gets.content, "html.parser")
-	# 	return soup.find('input', {'name': 'fb_dtsg'}).get('value')
-	# except:
-	# 	return None
 	try:
 		gets = requests.get("https://www.facebook.com",cookies = cookies)
 		soup = BS(gets.content, "html.parser")
@@ -161,7 +140,6 @@ def get_fb_dtsg(cookies):
 		gets = cut_string(gets,'["DTSGInitialData",[],{"token":"',True)
 		gets = cut_string(gets,'"',False)
 		return gets
-		# return soup.find('input', {'name': 'fb_dtsg'}).get('value')
 	except:
 		return None
 def setLimitWithApi(driver,tk,cookie):
@@ -180,30 +158,7 @@ def setLimitWithApi(driver,tk,cookie):
 
 def saveAccSuccess(acc):
 	f = open("clonesuccess.txt","a+")
-	f.write(acc.tk+"|"+acc.mk+"|"+acc.fa+"\n")
-
-# def login(acc):
-# 	driver = webdriver.Chrome(executable_path='chromedriver.exe')
-# 	driver.set_window_size(640, 480)
-# 	driver.get("https://m.facebook.com")
-# 	sendKeyElm(driver,"/html/body/div[1]/div/div[2]/div[1]/div/div[2]/div/div[3]/form/div[4]/div[1]/div/div/input",acc.tk)
-# 	sendKeyElm(driver,"/html/body/div[1]/div/div[2]/div[1]/div/div[2]/div/div[3]/form/div[4]/div[3]/div/div/div/div[1]/div/input",acc.mk)
-# 	clickElm(driver,"/html/body/div[1]/div/div[2]/div[1]/div/div[2]/div/div[3]/form/div[5]/div[1]/button")
-
-# 	# nhap 2 fa
-
-# 	sendKeyElm(driver,"/html/body/div[1]/div/div[3]/form/div/article/section/div/section[2]/div[2]/div/input",get2FA(acc.fa))
-
-# 	clickElm(driver,"/html/body/div[1]/div/div[3]/form/div/article/div[1]/table/tbody/tr/td/button")
-
-# 	#continue
-# 	clickElm(driver,"/html/body/div[1]/div/div[3]/form/div/article/div[1]/table/tbody/tr/td/button")
-
-# 	#check acc die
-# 	if findElm(driver,"/html/body/div[1]/div/div[4]/div/div[1]/div/div/form/div/div/div[2]/div[1]/div/button"):
-# 		driver.close()
-# 	else:
-# 		addCard(driver,acc)
+	f.write(acc.tk+"|"+acc.mk+"|"+acc.fa)
 
 
 def cut_string(string,key,choice):
@@ -222,6 +177,25 @@ def get_account_id(cookies):
 	data = cut_string(data,'"',False)
 	return data
 
+def check_added_card(cookies,fb_dtsg,account_id):
+	url = "https://m.facebook.com/api/graphql/"
+	headers = {
+				'user-agent': 'Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.7 (KHTML, like Gecko) Chrome/7.0.517.41 Safari/534.7'
+	}
+	data = {
+		'fb_dtsg': fb_dtsg,
+		'variables': '{"paymentAccountID":"'+account_id+'"}',
+		'doc_id': '5286352154719076'
+	}
+	p = requests.post(url,data=data,cookies = cookies,headers = headers)
+	try:
+		data = p.json()
+		check_added_card = data['data']['viewer']['billable_accounts']['edges'][0]['node']['funding_source']['display_string']
+		if "VISA" in check_added_card:
+			return True
+		return False
+	except:
+		return False
 
 def set_country_and_currentcy(cookies,fb_dtsg,account_id):
 	url = "https://m.facebook.com/api/graphql/"
@@ -272,7 +246,7 @@ def add_card(cookies,fb_dtsg,account_id,card):
 		'doc_id': '4126726757375265'
 	}
 	requests.post(url,data = data, cookies = cookies)
-	print("add thẻ thành công")
+	
 def set_limit(cookies,fb_dtsg,account_id):
 	myID = cookies['c_user']
 	url = "https://m.facebook.com/api/graphql/"
@@ -316,35 +290,32 @@ def change_language(cookies,fb_dtsg):
 	}
 	requests.post(url,data = data, cookies = cookies)
 def auto_add_card(acc):
-	# cookies = convert_cookie_to_json(acc.cookies)
-	# fb_dtsg = get_fb_dtsg(cookies)
-	# sl(5)
-	# account_id = get_account_id(cookies)
-	# sl(5)
-	# set_country_and_currentcy(cookies,fb_dtsg,account_id)
-	# sl(5)
-	# card = random.choice(list_card())
-	# add_card(cookies,fb_dtsg,account_id,card)
-	# sl(3)
-	# set_limit(cookies,fb_dtsg,account_id)
-	# # approve(cookies,fb_dtsg,account_id)
-	# saveAccSuccess(acc)
-
-
+	global count_add_card_success
+	check_add_card_success = False
 	cookies = convert_cookie_to_json(acc.cookies)
-	
 	fb_dtsg = get_fb_dtsg(cookies)
 	print(fb_dtsg)
 	change_language(cookies,fb_dtsg)
 	account_id = get_account_id(cookies)
 	print(account_id)
 	set_country_and_currentcy_lol(cookies,fb_dtsg,account_id)
-	card = random.choice(list_card())
-	add_card(cookies,fb_dtsg,account_id,card)
-	set_limit(cookies,fb_dtsg,account_id)
-	# set_tax(cookies,fb_dtsg,account_id)
-	saveAccSuccess(acc)
-	
+	for i in range(5):
+		if not check_added_card(cookies,fb_dtsg,account_id):
+			sl(2)
+			card = random.choice(list_card())
+			add_card(cookies,fb_dtsg,account_id,card)
+		else:
+			check_add_card_success = True
+			break
+
+	if check_add_card_success:
+		set_limit(cookies,fb_dtsg,account_id)
+		# set_tax(cookies,fb_dtsg,account_id)
+		saveAccSuccess(acc)
+		count_add_card_success+=1
+		print("Add thành công: "+str(count_add_card_success)+"/"+str(count_list_clone))
+	else:
+		print("Thẻ đã chết hoặc clone đã die")
 
 def login(email,pw,fa):
 	browser = mechanize.Browser()
@@ -397,8 +368,10 @@ def getCookie(listCookies):
 
 
 arrThread = []
+listClone = listCloneAcc()
 count = 1
-for acc in listCloneAcc():
+count_list_clone = len(listClone)
+for acc in listClone:
 	t = threading.Thread(target = auto_add_card,args=(acc,))
 	arrThread.append(t)
 	# break
@@ -407,3 +380,9 @@ for acc in listCloneAcc():
 	# count+=1
 for t in arrThread:
 	t.start()
+
+
+
+# cookies = convert_cookie_to_json('c_user=100081978557969; xs=26:tGF23z9wKEssKA:2:1654839320:-1:-1; oo=; |4SNAOMWY76FPDPN23Z25BDGLMW5WLZ3L=; dpr=1.25; fr=0bNV7IqMIigocDRDr.AWUELXRUzl8qi9Wa9TMZaTBfIcY.BivaWd.9W.AAA.0.0.BivaWd.AWWgRSXg0LE; sb=naW9YpKno3tE2ajT0tCDv-7X; datr=naW9YklkJh6mYJf9TfKaZBRC; m_pixel_ratio=1.25; wd=1536x864')
+
+# print(check_added_card(cookies,'NAcMBlP_VrjWWZCH-FFKLa4C1sfLzaksp35UjQvXcyeS1vxquFpzvVA:15:1654769525','3227700224173890'))
